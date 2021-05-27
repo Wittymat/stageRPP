@@ -5,7 +5,7 @@
 #include <map>
 
 
-#define MAXINT 32767
+#define MAXINT 2147483647
 
 using namespace std;
 
