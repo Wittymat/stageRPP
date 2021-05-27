@@ -62,5 +62,3 @@ Graph read_graph(string path){
     f.close();
     return Graph(list_edges, nb_vertices, nb_required);
 }
-
-
