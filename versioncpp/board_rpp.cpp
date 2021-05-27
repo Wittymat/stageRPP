@@ -20,6 +20,7 @@ class Move{
         u = x;
         v = y;
     }
+    // default constructor
     Move(){
         u = -1;
         v = -1;
@@ -88,7 +89,7 @@ class Board {
     }
 };
 
-#include "gnrpa.cpp"
+#include "gnrpa.c"
 
 int main(int argc, char *argv []) {
   //testTimeNRPA (4, "leftMove");
