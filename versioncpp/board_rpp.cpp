@@ -7,10 +7,10 @@
 using namespace std;
 
 const int MaxPlayoutLength = 500000;
-const int MaxLegalMoves = 1000;
 const bool closed = true;
 Graph g = read_graph("/Users/swarm/Documents/stage/URPP/UR132");
-const int MaxMoveNumber = g.nb_vertices*g.nb_vertices;
+const int MaxLegalMoves = 10000;
+const int MaxMoveNumber = 10000*10000;
 
 
 class Move{
