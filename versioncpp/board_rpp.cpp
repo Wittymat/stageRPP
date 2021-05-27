@@ -8,7 +8,7 @@ using namespace std;
 
 const int MaxPlayoutLength = 500000;
 const int MaxLegalMoves = 1000;
-const bool closed = false;
+const bool closed = true;
 
 typedef int Move[2];
 
@@ -32,7 +32,7 @@ class Board {
 
     // hash function for a move
     int code (Move m) {
-        return m[0]*5 + m[1]*7;
+        return graph.nb_vertices * m[0] + m[1];
     }
 
     // return the number of legal moves, put all legal moves in moves array
