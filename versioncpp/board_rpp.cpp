@@ -1,6 +1,6 @@
 #include <vector>
 #include <random>
-#include <parsegraph.hpp>
+#include "parsegraph.hpp"
 #include <set>
 
 
@@ -8,7 +8,9 @@ using namespace std;
 
 const int MaxPlayoutLength = 500000;
 const int MaxLegalMoves = 1000;
+const int MaxMoveNumber = 100000;
 const bool closed = true;
+Graph g = read_graph("/Users/swarm/Documents/stage/URPP/UR132");
 
 typedef int Move[2];
 
@@ -21,8 +23,9 @@ class Board {
     set<Edge> required_edges;
     int cost;
     int current_node;
+    
 
-    Board (Graph g) {
+    Board () {
         // first node to explore
         length = 0;
         cost = 0;
@@ -32,6 +35,9 @@ class Board {
 
     // hash function for a move
     int code (Move m) {
+        return graph.nb_vertices * m[0] + m[1];
+    }
+    int code (Move m, int b) {
         return graph.nb_vertices * m[0] + m[1];
     }
 
@@ -67,38 +73,38 @@ class Board {
         }
     }
 
-    double score2 () {
-        map<int[2], int> occurences = count_occurences(rollout, length);
-        int p_a = 1000000;
-        int p_b = 1000;
-        // penalites pour chaque occurence d'un edge + de 2 fois
-        // bonus pour chaque arrete obligatoire empruntee
-        int penalites = 0;
-        int bonus = 0;
-        for (const auto& [key, value] : occurences){
-            if (value > 2){
-                penalites += p_a;
-            }
-            if (graph.has_required_edge(key)){
-                bonus += p_b;
-            }
-        }
-        return bonus - penalites;
-    }
+    // double score2 () {
+    //     map<int[2], int> occurences = count_occurences(rollout, length);
+    //     int p_a = 1000000;
+    //     int p_b = 1000;
+    //     // penalites pour chaque occurence d'un edge + de 2 fois
+    //     // bonus pour chaque arrete obligatoire empruntee
+    //     int penalites = 0;
+    //     int bonus = 0;
+    //     for (const auto& [key, value] : occurences){
+    //         if (value > 2){
+    //             penalites += p_a;
+    //         }
+    //         if (graph.has_required_edge(key)){
+    //             bonus += p_b;
+    //         }
+    //     }
+    //     return bonus - penalites;
+    // }
 
-    map<int[2], int> count_occurences (Move rollout[], int length) {
-        map<int[2], int> res;
-        for (int i = 0; i < length; i++){
-            int t[2] = {rollout[i][0], rollout[i][1]};
-            if (res.count(t) == 0) {
-                res.insert(std::make_pair(t, 0));
-            } else {
-                res[t]++;
-            }
-        }
+    // map<int[2], int> count_occurences (Move rollout[], int length) {
+    //     map<int[2], int> res;
+    //     for (int i = 0; i < length; i++){
+    //         int t[2] = {rollout[i][0], rollout[i][1]};
+    //         if (res.count(t) == 0) {
+    //             res.insert(std::make_pair(t, 0));
+    //         } else {
+    //             res[t]++;
+    //         }
+    //     }
 
-        return res;
-    }
+    //     return res;
+    // }
 
     void print (FILE *fp) {
         

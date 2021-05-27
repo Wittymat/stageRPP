@@ -4,6 +4,9 @@
 #include <vector>
 #include <map>
 
+
+#define MAXINT 32767
+
 using namespace std;
 
 
@@ -91,7 +94,7 @@ class Graph {
                     } else if (adj_mat[i][j]) {
                         w0[i].push_back(adj_mat[i][j]);
                     } else{
-                        w0[i].push_back(INT64_MAX);
+                        w0[i].push_back(MAXINT);
                     }
                 }
             }
