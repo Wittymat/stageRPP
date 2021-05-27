@@ -14,6 +14,11 @@ Graph g = read_graph("/Users/swarm/Documents/stage/URPP/UR132");
 
 typedef int Move[2];
 
+void replace_move(Move move, Move m){
+    move[0] = m[0];
+    move[1] = m[1];
+}
+
 class Board {
     public:
 
@@ -72,6 +77,8 @@ class Board {
             return -cost - graph.shortest_path[rollout[0][1]][rollout[length][1]];
         }
     }
+
+
 
     // double score2 () {
     //     map<int[2], int> occurences = count_occurences(rollout, length);

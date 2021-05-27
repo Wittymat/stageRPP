@@ -81,7 +81,9 @@ float playoutNRPA (Board & board) {
       scoreBestRollout [0] = score;
       lengthBestRollout [0] = board.length;
       for (int k = 0; k < board.length; k++)
-	bestRollout [0] [k] = board.rollout [k];
+        replace_move(bestRollout[0][k], board.rollout[k]);
+	      //bestRollout [0] [k] = board.rollout [k];
+
       //for (int k = 0; k < board.length; k++)
       //policyAMAF.add (board.code (board.rollout [k]), score);
       if (score > bestScoreNRPA) {
@@ -197,7 +199,8 @@ float nrpa(int level, bool root = false) {
 	scoreBestRollout [level] = score;
 	lengthBestRollout [level] = lengthBestRollout [level - 1];
 	for (int k = 0; k < lengthBestRollout [level]; k++)
-	  bestRollout [level] [k] = bestRollout [level - 1] [k];
+    replace_move(bestRollout[level][k], bestRollout[level-1][k]);
+	  //bestRollout [level] [k] = bestRollout [level - 1] [k];
 	for (int k = 0; k < lengthBestRollout [level]; k++) {
 	  indexBestMoveRollout [level] [k] = indexBestMoveRollout [level - 1] [k];
 	  nbMovesBestRollout [level] [k] = nbMovesBestRollout [level - 1] [k];
