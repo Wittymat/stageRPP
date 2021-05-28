@@ -30,6 +30,13 @@ class Edge{
         }
 };
 
+class Path {
+    public:
+    vector<Edge> path;
+    Path();
+    bool is_closed();
+};
+
 class Graph {
     public:
         // default constructor

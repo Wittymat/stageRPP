@@ -12,6 +12,7 @@ const int MaxLegalMoves = 1000;
 const int MaxMoveNumber = MaxLegalMoves*MaxLegalMoves;
 
 
+
 class Move{
     public:
     int u;
