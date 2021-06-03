@@ -101,7 +101,7 @@ class Graph {
                 for (int j = 0; j < nb_vertices; j++){
                     if (i == j){
                         ws[0][i].push_back(0);
-                    } else if (adj_mat[i][j].u != -1) {
+                    } else if (adj_mat[i][j].u != -1) { // non existing edge
                         ws[0][i].push_back(adj_mat[i][j].w);
                     } else{
                         ws[0][i].push_back(MAXINT);
