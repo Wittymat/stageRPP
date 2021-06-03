@@ -26,10 +26,20 @@ vector<string> split(string const& s, char d){
     return tokens;
 }
 
+
+bool Path::is_closed(){
+    if (path.size() <= 1){
+        return true;
+    }
+    return path[0].u == path[path.size()-1].v;
+}
+
 Graph read_graph(string path){
+    cout << "ouverture fichier" << endl;
     // ouverture fichier
     ifstream f;
     f.open(path);
+    cout << "fichier ouvert" << endl;
     // declaration
     int nb_vertices, nb_required, nb_edges, u, v, w;
     vector<Edge> list_edges;
@@ -54,11 +64,12 @@ Graph read_graph(string path){
             tokens[2].pop_back();
             v = stoi(tokens[2]);
             w = stoi(tokens[4]);
-            list_edges.push_back(Edge(u, v, w, i < 6 + nb_required));
+            list_edges.push_back(Edge(u-1, v-1, w, i < 6 + nb_required));
         }
         i++;
     }
 
     f.close();
+    cout << "lecture graph termine" << endl;
     return Graph(list_edges, nb_vertices, nb_required);
 }

@@ -53,11 +53,12 @@ class Graph {
             make_adj_mat();
             compute_shortest_path();
         }
+
         vector<Edge> edges;
         int nb_vertices, nb_required;
         map<int, vector<Edge> > adj_list;
         vector<vector<int> > shortest_path;
-        vector<vector<int> > adj_mat;
+        vector<vector <Edge> > adj_mat;
 
         // methods
 
@@ -67,21 +68,24 @@ class Graph {
                 adj_list[edges[i].u].push_back(edges[i]);
                 adj_list[edges[i].v].push_back(edges[i].reverse());
             }
+            cout << "adj list faite" << endl;
         }
 
         void make_adj_mat(){
             // init
             for (int i = 0; i < nb_vertices; i++){
-                adj_mat.push_back(vector<int>());
+                adj_mat.push_back(vector<Edge>());
                 for (int j = 0; j < nb_vertices; j++){
-                    adj_mat[i].push_back(0);
+                    adj_mat[i].push_back(Edge(-1, -1, 0, false));
                 }
             }
             // fill
             for (int i = 0; i < edges.size(); i++){
-                adj_mat[edges[i].u][edges[i].v] = edges[i].w;
-            }
+                adj_mat[edges[i].u][edges[i].v] = edges[i];
+                adj_mat[edges[i].v][edges[i].u] = edges[i].reverse();
 
+            }
+            cout << "adj mat faite" << endl;
         }
         
 
@@ -90,21 +94,21 @@ class Graph {
 
             // init
             vector<vector<vector<int> > > ws;
-            vector<vector<int> > w0;
-            ws.push_back(w0);
+            ws.push_back(vector < vector < int> >());
 
             for (int i = 0; i < nb_vertices; i++){
-                w0.push_back(vector<int>());
+                ws[0].push_back(vector<int>());
                 for (int j = 0; j < nb_vertices; j++){
                     if (i == j){
-                        w0[i].push_back(0);
-                    } else if (adj_mat[i][j]) {
-                        w0[i].push_back(adj_mat[i][j]);
+                        ws[0][i].push_back(0);
+                    } else if (adj_mat[i][j].u != -1) {
+                        ws[0][i].push_back(adj_mat[i][j].w);
                     } else{
-                        w0[i].push_back(MAXINT);
+                        ws[0][i].push_back(MAXINT);
                     }
                 }
             }
+
 
             // recurrence
             for (int k = 1; k<nb_vertices; k++){
@@ -118,7 +122,7 @@ class Graph {
                 }
             }
             shortest_path = ws[ws.size()-1];
-
+            cout << "shortest pass fait" << endl;
         }
 
         void print_graph(bool edges){

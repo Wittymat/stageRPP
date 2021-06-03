@@ -1,11 +1,13 @@
 #include <random>
 #include "parsegraph.hpp"
 #include <set>
+#include <iostream>
 
 
 using namespace std;
 
-const int MaxPlayoutLength = 1000;
+
+const int MaxPlayoutLength = 10000;
 const bool closed = true;
 Graph g = read_graph("/Users/swarm/Documents/stage/URPP/UR132");
 const int MaxLegalMoves = 1000;
@@ -45,7 +47,6 @@ class Board {
         length = 0;
         cost = 0;
         graph = g;
-        current_node = 0;
     }
 
     // hash function for a move
@@ -58,23 +59,41 @@ class Board {
 
     // return the number of legal moves, put all legal moves in moves array
     int legalMoves (Move moves [MaxLegalMoves]) {
-        int nb = graph.adj_list[current_node].size();
-        for (int i = 0; i < nb; i++){
-            moves[i] = Move(current_node, graph.adj_list[current_node][i].v) ;
+        // first move
+        if (length == 0){
+            current_node = random()%graph.nb_vertices;
+            //cout << "first node = " << current_node << endl;
         }
-        return nb;
+        int c = 0;
+        for (int i = 0; i < graph.nb_vertices; i++){
+            if (graph.adj_mat[current_node][i].u != -1){
+                moves[c] = Move(current_node, i);
+                c++;
+            }
+        }
+        return c;
     }
 
     // play the move, update gamestate
     void play (Move m) {
         rollout[length] = m;
-        cost += graph.adj_list[current_node][m.v].w;
+        cost += graph.adj_mat[m.u][m.v].w;
+        if (g.adj_list[m.u][m.v].required){
+            required_edges.insert(graph.adj_mat[m.u][m.v]);
+            required_edges.insert(graph.adj_mat[m.v][m.u]);
+        }
+        current_node = m.v;
         length++;
-        current_node = graph.adj_list[current_node][m.v].v;
     }
 
     bool terminal () {
-        return required_edges.size() == 2*graph.nb_required;
+        //cout << "terminal?" << endl;
+        if (required_edges.size() == 2*graph.nb_required){
+            cout << "parcours termine" << endl;
+        } else if (length >= MaxPlayoutLength){
+            cout << "pas fini" << endl;
+        }
+        return required_edges.size() == 2*graph.nb_required || length >= MaxPlayoutLength;
     }
   
     double score () {
@@ -95,11 +114,13 @@ class Board {
 int main(int argc, char *argv []) {
   //testTimeNRPA (4, "leftMove");
   //exit (0);
-  while (true) {
-    int level = 2;
-    nrpa (level, true);
-    fprintf (stderr, "score final : ");
-    bestBoard.print (stderr);
-    fprintf (stderr, "\n");
-  }
+    cout << "Debut du programme main" << endl;
+
+    while (true) {
+        int level = 0;
+        nrpa (level, true);
+        // fprintf (stderr, "score final : ");
+        // bestBoard.print (stderr);
+        // fprintf (stderr, "\n");
+    }
 }
