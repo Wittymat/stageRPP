@@ -105,7 +105,7 @@ class Board {
     }
 
     void print (FILE *fp) {
-        
+        fprintf (fp, "length = %d\n", length);
     }
 };
 
@@ -119,8 +119,8 @@ int main(int argc, char *argv []) {
     while (true) {
         int level = 0;
         nrpa (level, true);
-        // fprintf (stderr, "score final : ");
-        // bestBoard.print (stderr);
-        // fprintf (stderr, "\n");
+        fprintf (stderr, "score final : ");
+        bestBoard.print (stderr);
+        fprintf (stderr, "\n");
     }
 }
