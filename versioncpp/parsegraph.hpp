@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 
 #define MAXINT 2147483647
@@ -12,6 +13,7 @@ using namespace std;
 
 class Edge{
     public:
+        Edge(){}
         Edge(int a, int b, int c, bool d){
             u = a;
             v = b;
@@ -28,7 +30,28 @@ class Edge{
         bool operator<(const Edge & a) const {
             return a.u > u || (a.u == u && a.v > v);
         }
+
+        
 };
+
+
+
+class DoubleEdge : public Edge {
+    public :
+    int shortest;
+    bool double_edge;
+    int i;
+    int j;
+    set<Edge> required_edges;
+    DoubleEdge(int a, int b, int c, bool d, int s, int e, int u, int v) : Edge(a, b, c, d){
+        shortest = s;
+        double_edge = e;
+        i = u;
+        j = v;
+    }
+};
+
+ostream& operator<< (ostream &os, DoubleEdge const& e);
 
 class Path {
     public:
@@ -36,6 +59,8 @@ class Path {
     Path();
     bool is_closed();
 };
+
+
 
 class Graph {
     public:
@@ -51,7 +76,7 @@ class Graph {
             nb_required = r;
             make_adj_list();
             make_adj_mat();
-            compute_shortest_path();
+            //compute_shortest_path();
         }
 
         vector<Edge> edges;
@@ -87,6 +112,7 @@ class Graph {
             }
             cout << "adj mat faite" << endl;
         }
+
         
 
         void compute_shortest_path(){
@@ -151,3 +177,129 @@ class Graph {
 };
 
 Graph read_graph(string path);
+
+
+class RppGraph : public Graph {
+    public:
+
+    vector<vector<int> > paths;
+    vector<vector<DoubleEdge> > adj_mat_induced;
+    RppGraph(){}
+    RppGraph(vector<Edge> e, int n, int r) : Graph(e, n, r){
+        cout << "debut construction graph induit " << endl;
+        vector<int> required_nodes(nb_vertices, -1);
+        int c = 0;
+        for (int i = 0; i < edges.size(); i++){
+            Edge current_edge = edges[i];
+            if (current_edge.required){
+                if (required_nodes[current_edge.u] == -1){
+                    required_nodes[current_edge.u] = c;
+                    c++;
+                }
+                if (required_nodes[current_edge.v] == -1){
+                    required_nodes[current_edge.v] = c;
+                    c++;
+                }
+            }
+        }
+        cout << "nombre noeuds induits = " << c << endl;
+        vector<int> nodes_required;
+        for (int i = 0; i<nb_vertices; i++){
+            if (required_nodes[i] != -1){
+                nodes_required.push_back(i);
+            }
+        }
+
+        // shortest path matrix
+        vector <vector<int> > shortest;
+        vector <vector<int> > previous;
+        // init matrix
+        for (int i = 0; i < nodes_required.size(); i++){
+            shortest.push_back(vector<int>());
+            previous.push_back(vector<int>());
+            for (int j = 0; j < nb_vertices; j++){
+                if (nodes_required[i] == j){
+                    shortest[i].push_back(0);
+                } else{
+                    shortest[i].push_back(MAXINT);
+                }
+                previous[i].push_back(-1);
+            }
+        }
+        // multiple dijkstra
+        set<int> finish;
+        for (int i = 0; i < nodes_required.size(); i++){
+            int current_node = nodes_required[i];
+            finish.clear();
+            while (finish.size() != nb_vertices){
+                // select min
+                int dmin = MAXINT;
+                int indmin = -1;
+
+                for (int k = 0; k < nb_vertices; k++){
+
+                    if (shortest[i][k] < dmin && finish.count(k) == 0) {
+                        dmin = shortest[i][k];
+                        indmin = k;
+                    }
+                }
+                finish.insert(indmin);
+                // neighbors
+                for (int b = 0; b < nb_vertices; b++){
+                    if (adj_mat[indmin][b].u != -1 && finish.count(b) == 0){
+                        if (shortest[i][b] > shortest[i][indmin] + adj_mat[indmin][b].w){
+                            shortest[i][b] = shortest[i][indmin] + adj_mat[indmin][b].w;
+                            previous[i][b] = indmin;
+                        }
+                    }
+                }
+            }
+        }
+
+        // construire la matrice d'adjacence du graphe induit par les arretes requises
+        for (int i = 0; i < c; i++){
+            adj_mat_induced.push_back(vector<DoubleEdge>());
+            for (int j = 0; j < c; j++){
+                int u = nodes_required[i];
+                int v = nodes_required[j];
+                bool e = (adj_mat[u][v].u == -1);
+                adj_mat_induced[i].push_back(DoubleEdge(i, j, adj_mat[u][v].w, adj_mat[u][v].required, shortest[i][v], e, u, v));
+                // un noeud ne doit pas aller vers lui même
+                if (i == j){
+                    adj_mat_induced[i][j].u = -1;
+                    adj_mat_induced[i][j].v = -1;
+                }
+            }
+        }
+
+        // si le chemin d'une arrete u-v dans le graphe induit passe par un required dans le graphe normal, ajouter cette info
+        for (int i = 0; i < c; i++){
+            for (int j = 0; j < c ; j++){
+                int src = nodes_required[i];
+                int dst = nodes_required[j];
+                while (dst != src){
+                    int u = previous[i][dst];
+                    // s'il y a un edge requis, l'ajouter
+                    if (adj_mat[u][dst].u != -1 && adj_mat[u][dst].required){
+                        adj_mat_induced[i][j].required_edges.insert(adj_mat[u][dst]);
+                        adj_mat_induced[i][j].required_edges.insert(adj_mat[dst][u]);
+                    }
+                    dst = u;
+                }
+            }
+        }
+
+        nb_vertices = c;
+        paths = previous;
+        cout << "graphe induit construit " << endl;
+        //print_graph();
+    }
+
+    void print_graph(){
+        for (int i = 0; i < nb_vertices; i++){
+            for (int j = 0; j < nb_vertices; j++){
+                cout << adj_mat_induced[i][j] << endl;
+            }
+        }
+    }
+};

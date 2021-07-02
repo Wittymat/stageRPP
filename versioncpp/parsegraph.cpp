@@ -7,6 +7,23 @@
 
 using namespace std;
 
+
+ostream& operator<< (ostream &os, Edge const& e){
+    os << "u = " << e.u << " v = " << e.v << " required = " << e.required  << " weight = " << e.w << endl;
+    return os;
+}
+ostream& operator<< (ostream &os, DoubleEdge const& e){
+    if (e.u != -1){
+        os << "u = " << e.u << " v = " << e.v << " required = " << e.required  << " weight = " << e.w;
+        os << " nouveau poids = " << e.shortest << " ancien noms sommets = (" << e.i << "," << e.j << ") " << endl;
+        os << "liste edges required dans le chemin : " << endl;
+        for (auto elem : e.required_edges){
+            os << "(" << elem.u << "," << elem.v << ")" << endl;
+        }
+    }
+    return os;
+}
+
 vector<string> split(string const& s, char d){
     vector<string> tokens;
     string token = "";
@@ -34,6 +51,8 @@ bool Path::is_closed(){
     return path[0].u == path[path.size()-1].v;
 }
 
+
+
 Graph read_graph(string path){
     cout << "ouverture fichier" << endl;
     // ouverture fichier
@@ -48,16 +67,13 @@ Graph read_graph(string path){
     string line;
 
     while (getline(f, line)){
-        // nombre sommet
         if (i == 2){
-
             nb_vertices = stoi(split(line, ' ')[2]);
-
         } else if (i == 3){
             nb_required = stoi(split(line, ' ')[2]);
         } else if (i == 4){
             nb_edges = nb_required + stoi(split(line, ' ')[2]);
-        } else if ((i >= 6 && i < 6 + nb_required) || (i > 6 + nb_required && i < 6 + nb_edges)){
+        } else if ((i >= 6 && i < 6 + nb_required) || (i > 6 + nb_required && i < 6 + nb_edges + 1)){
             vector<string> tokens = split(line, ' ');
             tokens[1].pop_back();
             u = stoi(tokens[1]);
@@ -71,5 +87,10 @@ Graph read_graph(string path){
 
     f.close();
     cout << "lecture graph termine" << endl;
+    cout << "nb vertices " << nb_vertices << endl;
+    cout << "nb required " << nb_required << endl;
+    cout << "nb edges " << nb_edges << endl;
+
     return Graph(list_edges, nb_vertices, nb_required);
 }
+
